@@ -1,0 +1,110 @@
+0.6 (Apr 04, 2008):
+
+Features:
+
+- Interface changes
+
+Bug Fixes:
+
+- Fixed unlock loader when dupe files are involved
+
+
+0.5 (Jul 18, 2007):
+
+Features:
+
+- Completely redesigned interface
+
+- Major cleanup and reconstruction of the code base
+
+- Group locking. All songs in a group can be locked by changing the attributes of the
+  group itself. This way, the group will not appear in StepMania until the songs in the group
+  have been unlocked
+
+- Reset function. All changes to songs and groups in a session can be reset to give the values
+  from when the songs were loaded in a session
+
+- All limits for points have been raised to 10000
+
+Bug Fixes:
+
+- Hard to say
+
+
+0.3 (Apr 16, 2007):
+
+Features:
+
+- A slightly faster and more controlled recursive directory search has been implemented
+
+- Unlock codes are written to the Unlocks.dat file and read from the Unlocks.dat file.
+  A backup copy of an existing Unlocks.dat file, Unlocks.dat.backup, will be written
+  prior to writing the new file
+
+- Some light command line argument parsing has been added. The root StepMania
+  directory can be specified (with -d flag) and the data in the directory will
+  automatically load
+
+- The limit for Dance Points has been set to 1000 and the limit for the
+  other options is now 500 (each limit was previously set to 100)
+
+- Added a song title box to the main GUI. I hesitated putting it on before
+  but I think the dev of Stepmania Song Locker had the right idea
+
+Bug Fixes:
+
+- Fixed some of the parsing commands to better adhere to StepMania standards;
+  primarily regarding titles and subtitles with excess whitespace
+
+- Fixed unlock code generation for songs with Japanese titles/subtitles;
+  added parsing of #TITLETRANSLIT and #SUBTITLETRANSLIT lines since they
+  take precedence in unlock codes
+
+- Fixed case-sensitive file extension lookup
+
+- Fixed issue with buttons on the interface remaining active while a
+  file search is in progress
+
+- Fixed bug with the current working directory needing to be specified in the
+  application's desktop file or bash script. The current working directory
+  is now obtained within the application
+
+
+0.2 (Mar 16, 2007):
+
+Features:
+
+- Added a Quick Song Search
+
+- Added an About window
+
+- Added a dialog stating the location of the written NewUnlocked.dat file
+
+- Looks for default StepMania directory under Windows and sets searchfolder
+  if the directory exists
+
+- Song entry listings are now case-insensitive
+
+- Multiple song entries are pruned so that only one entry of a song exists
+
+Bug Fixes:
+
+- Fixed bug where the first song entry on the list was ignored
+
+- Fixed bug with readfile not being incremented when no title
+  entry was found in a file
+
+- Fixed window drawing issues that caused problems under Windows
+
+- Fixed issues with some window widgets not getting dereference properly
+
+
+0.1.5 (Mar 3, 2007):
+
+- Released a Windows installer
+
+
+0.1 (Feb 28, 2007):
+
+- Initial Release
+
