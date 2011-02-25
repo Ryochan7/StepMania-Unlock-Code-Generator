@@ -4,11 +4,11 @@ import os
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui_mainwindow import Ui_MainWindow
-from aboutdialog import AboutDialog
-from loadsongs_controller import LoadSongsController
-from writeunlock_controller import WriteUnlockController
-from readunlock_controller import ReadUnlockController
+from ui.ui_mainwindow import Ui_MainWindow
+from ui.aboutdialog import AboutDialog
+from controllers.loadsongs_controller import LoadSongsController
+from controllers.writeunlock_controller import WriteUnlockController
+from controllers.readunlock_controller import ReadUnlockController
 
 class MainWindow (QMainWindow, Ui_MainWindow):
     def __init__ (self, parent = None):
