@@ -5,6 +5,7 @@ import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui_mainwindow import Ui_MainWindow
+from aboutdialog import AboutDialog
 from loadsongs_controller import LoadSongsController
 from writeunlock_controller import WriteUnlockController
 from readunlock_controller import ReadUnlockController
@@ -13,8 +14,10 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     def __init__ (self, parent = None):
         super (MainWindow, self).__init__ (parent)
         self.setupUi (self)
+        self.aboutdialog = AboutDialog ()
         self.connect (self.actionQuit, SIGNAL ("triggered ()"),
             qApp, SLOT ("quit ()"))
+        self.actionAbout.triggered.connect (self.aboutdialog.show)
         #self.actionQuit.triggered.connect (qApp.quit)
         self.loadsong_thread = None
         self.group_collection = []
@@ -36,11 +39,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
             "Choose StepMania Directory", os.path.dirname (__file__))
 
         if fileName:
-            print fileName
             self.lineEdit.setText (fileName)
             self.loadSongsButton.setEnabled (True)
-        print "Automatic connection made"
-
 
     @pyqtSlot ()
     def on_loadSongsButton_clicked (self):
@@ -107,11 +107,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
     @pyqtSlot ()
     def on_saveButton_clicked (self):
-        print "Add saving controller"
         searchfolder = str(self.lineEdit.text ())
 
-        print self.treeWidget.currentItem ()
-        print self.treeWidget_2.currentItem ()
         groupitem = self.treeWidget.currentItem ()
         songitem = self.treeWidget_2.currentItem ()
         # Check for selected song first
@@ -139,9 +136,6 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     # Handle cursor change events
     @pyqtSlot ("QTreeWidgetItem*", "QTreeWidgetItem*")
     def on_treeWidget_currentItemChanged (self, current, previous):
-        print "IN WIDGET 1"
-        print current
-        print previous
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
@@ -153,9 +147,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
                 self._group_update (group)
                 group.change_songs ()
 
-        print "BEFORE CLEAR"
         self.treeWidget_2.clear ()
-        print "AFTER CLEAR"
 
         if not current:
             # Recheck for current item. Used to follow update group logic
@@ -184,11 +176,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         values[3] = self.songOptionsWidget.rouletteSpinBox.value ()
         values[4] = self.songOptionsWidget.spointsSpinBox.value ()
 
-        print "CHECK EQUALITY"
         if values != group.values:
             update = True
-
-        print values == group.values
 
         return update
 
@@ -204,9 +193,6 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     # Handle cursor change events
     @pyqtSlot ("QTreeWidgetItem*", "QTreeWidgetItem*")
     def on_treeWidget_2_currentItemChanged (self, current, previous):
-        print "IN WIDGET 2"
-        print current
-        print previous
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
