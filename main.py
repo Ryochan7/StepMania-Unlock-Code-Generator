@@ -54,6 +54,10 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.treeWidget.clear ()
         self.treeWidget_2.clear ()
 
+        self.songOptionsFrame.setEnabled (False)
+        self.loadSongsButton.setEnabled (False)
+        self.toolButton.setEnabled (False)
+
         self.group_collection = []
         controller = LoadSongsController (searchfolder, self.group_collection)
         controller.groupload_notice.connect (self.statusbar.showMessage)
@@ -75,10 +79,15 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
             item.group = group
             self.treeWidget.addTopLevelItem (item)
+            self.treeWidget.setCurrentItem (self.all_item)
 
         searchfolder = str(self.lineEdit.text ())
         controller = ReadUnlockController (searchfolder, songs)
         controller.run ()
+
+        self.songOptionsFrame.setEnabled (True)
+        self.loadSongsButton.setEnabled (True)
+        self.toolButton.setEnabled (True)
 
         self.loadsong_thread = None
         self.group_collection = []
@@ -122,7 +131,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         # Check if only a group is selected
         elif groupitem:
             group = groupitem.group
-            print group
+            #print group
             if self._group_update_needed (group):
                 self._group_update (group)
                 group.change_songs ()
@@ -139,16 +148,19 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
+        elif not hasattr (current, "group") and not hasattr (previous, "group"):
+            # Widget populated with empty QTreeWidgetItem
+            return
 
         if previous:
             group = previous.group
-            print group
+            #print group
             if self._group_update_needed (group):
                 self._group_update (group)
                 group.change_songs ()
 
         self.treeWidget_2.clear ()
-
+        self.treeWidget_2.scrollToTop ()
         if not current:
             # Recheck for current item. Used to follow update group logic
             return
@@ -199,7 +211,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         elif current and not previous:
             # Update group information and songs if necessary
             group = self.treeWidget.currentItem ().group
-            print group
+            #print group
             if self._group_update_needed (group):
                 self._group_update (group)
                 group.change_songs ()
