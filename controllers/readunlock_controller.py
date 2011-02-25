@@ -1,5 +1,6 @@
 import os
 import sys
+from time import time
 
 class ReadUnlockController (object):
 
@@ -9,6 +10,7 @@ class ReadUnlockController (object):
 
     # Reads the unlock codes from the Unlocks.dat file
     def run (self):
+        starttime = time ()
         readfile = None
         datafolder = os.path.join (self.searchfolder, "Data")
         if (os.path.isdir (datafolder)):
@@ -27,7 +29,7 @@ class ReadUnlockController (object):
             print >> sys.stderr, "File \"%s\" could not be read." % unlockfile
             return False
 
-        print "Read File: %s" % unlockfile
+        print "Read File: %s" % unlockfile.name
         readline = unlockfile.readline ()
         temp = [song.name_trans for song in self.songs]
         full_temp = list (self.songs)
@@ -53,7 +55,7 @@ class ReadUnlockController (object):
             stats = stats.rstrip (';')
             stat_types = stats.split (',')
             for stat in stat_types:
-                print stat
+                #print stat
                 if stat[0:3] == "AP=":
                     changes[0] = int(stat.lstrip("AP="))
                 elif stat[0:3] == "CS=":
@@ -76,5 +78,7 @@ class ReadUnlockController (object):
 
             readline = unlockfile.readline()
 
+        endtime = time ()
+        print "Read Unlocks.dat: %.3f" % (endtime - starttime)
         return True
 

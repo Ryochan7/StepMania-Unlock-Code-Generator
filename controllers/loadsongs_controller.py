@@ -1,7 +1,7 @@
 import os
 import sys
 from time import time
-from PyQt4.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QApplication
 from extraclasses import Song, SongGroup
 
@@ -19,10 +19,9 @@ class LoadSongsController (QThread):
         starttime = time ()
         self._filewalk ()
         endtime = time ()
-        print endtime - starttime
+        print "LoadSongsController: %.3f" % (endtime - starttime)
 
     def _filewalk (self):
-        print "in filewalk"
         searchfolder = os.path.join (self.searchfolder, "Songs")
         if not os.path.isdir (searchfolder):
             return
@@ -53,7 +52,6 @@ class LoadSongsController (QThread):
                 if len (songpaths) == 0:
                     continue
 
-                print "EMIT SIGNAL"
                 self.groupload_notice.emit ("Loading Group: %s" % folders)
                 entries = self._smfile_read (songpaths)
                 if len (entries) == 0:
@@ -64,6 +62,7 @@ class LoadSongsController (QThread):
                 self.group_collection[0].songs.extend (newgroup.songs)
 
         self.groupload_notice.emit ("")
+        print "Files read: %d" % len (self.group_collection[0].songs)
 
     # Reads in the .sm/.dwi files within a group folder, makes the
     # required Song objects, and returns the list of Song objects
@@ -147,24 +146,14 @@ class LoadSongsController (QThread):
         self.exiting = True
         self.wait ()
 
-    @pyqtSlot ()
-    def fucker (self):
-        print "connection done"
-        print
-        print
-        print
-        print "KJLFDKLJDKJLFFKLJDKDL"
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     group_collection = []
-    controller = LoadSongsController ("/home/ryochan7/", group_collection)
-    controller.finished.connect (controller.fucker)
+    controller = LoadSongsController (os.getcwd (), group_collection)
     controller.finished.connect (app.quit)
-    #controller.connect (controller, SIGNAL ("finished()"), app, SLOT ("quit ()"))
-    #controller.connect (controller, SIGNAL ("dd"), controller.fucker)
+
     controller.start ()
     controller.wait ()
     print group_collection
@@ -175,5 +164,4 @@ if __name__ == "__main__":
             print song
 
     app.exec_ ()
-    print "add tests here"
 
