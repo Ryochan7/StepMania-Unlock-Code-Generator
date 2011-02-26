@@ -10,11 +10,41 @@ from controllers.loadsongs_controller import LoadSongsController
 from controllers.writeunlock_controller import WriteUnlockController
 from controllers.readunlock_controller import ReadUnlockController
 
+class CustomTreeWidgetItem (QTreeWidgetItem):
+    def __init__ (self, parent=None):
+        super (CustomTreeWidgetItem, self).__init__ (parent)
+        self.group = None
+
+    def __lt__ (self, other):
+        string1 = unicode (self.text (0)).lower ()
+        string2 = unicode (other.text (0)).lower ()
+        # Count self as greater. Will appear first in ascending order
+        if string1 == string2:
+            return True
+
+        string1_length = len (string1)
+        string2_length = len (string2)
+
+        shorter_string = string2
+        if string1_length < string2_length:
+            shorter_string = string2
+
+        # Only go here if two strings are of equal length
+        # and not equal
+        for i, char in enumerate (shorter_string):
+            if string1[i] != string2[i]:
+                return string1[i] < string2[i]
+
+        # Count smaller string as greater. Will appear first in
+        # ascending order
+        return True
+
 class MainWindow (QMainWindow, Ui_MainWindow):
-    def __init__ (self, parent = None):
+    def __init__ (self, parent=None):
         super (MainWindow, self).__init__ (parent)
         self.setupUi (self)
         self.aboutdialog = AboutDialog ()
+        # Leave old example of signal handling
         self.connect (self.actionQuit, SIGNAL ("triggered ()"),
             qApp, SLOT ("quit ()"))
         self.actionAbout.triggered.connect (self.aboutdialog.show)
@@ -23,7 +53,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.group_collection = []
         self.songOptionsFrame.hide ()
         self.treeWidget.clear ()
-        item = QTreeWidgetItem (["All"])
+        item = CustomTreeWidgetItem (["All"])
         itfont = QFont ()
         itfont.setBold (True)
         item.setFont (0, itfont)
@@ -69,7 +99,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     @pyqtSlot ()
     def populateTreeWidgets (self):
         for i, group in enumerate (self.group_collection):
-            item = QTreeWidgetItem ([group.name])
+            item = CustomTreeWidgetItem ([group.name])
             if i == 0:
                 itfont = QFont ()
                 itfont.setBold (True)
@@ -103,7 +133,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.treeWidget.clearSelection ()
         self.treeWidget_2.clear ()
 
-        iterator = QTreeWidgetItemIterator (self.treeWidget)
+        iterator = CustomTreeWidgetItemIterator (self.treeWidget)
         while (iterator.value ()):
             iteritem = iterator.value ()
             for song in iteritem.group.songs:
@@ -148,7 +178,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
-        elif not hasattr (current, "group") and not hasattr (previous, "group"):
+        elif not getattr (current, "group") and not getattr (previous, "group"):
             # Widget populated with empty QTreeWidgetItem
             return
 
@@ -167,7 +197,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
         # Regular group selected. Populate treeWidget with songs from group
         for song in current.group.songs:
-            item = QTreeWidgetItem ([song.name])
+            item = CustomTreeWidgetItem ([song.name])
             item.song = song
             self.treeWidget_2.addTopLevelItem (item)
 
