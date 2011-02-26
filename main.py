@@ -29,8 +29,6 @@ class CustomTreeWidgetItem (QTreeWidgetItem):
         if string1_length < string2_length:
             shorter_string = string2
 
-        # Only go here if two strings are of equal length
-        # and not equal
         for i, char in enumerate (shorter_string):
             if string1[i] != string2[i]:
                 return string1[i] < string2[i]
@@ -133,7 +131,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.treeWidget.clearSelection ()
         self.treeWidget_2.clear ()
 
-        iterator = CustomTreeWidgetItemIterator (self.treeWidget)
+        iterator = QTreeWidgetItemIterator (self.treeWidget)
         while (iterator.value ()):
             iteritem = iterator.value ()
             for song in iteritem.group.songs:
