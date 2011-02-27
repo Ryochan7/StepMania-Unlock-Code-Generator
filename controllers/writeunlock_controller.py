@@ -2,11 +2,16 @@ import os
 import sys
 from time import time
 from shutil import copy
+from PyQt4 import QtCore
 
 # Writes the unlock file and shows a prompt telling the user
 # where the unlock file is located
-class WriteUnlockController (object):
+class WriteUnlockController (QtCore.QObject):
+    error = QtCore.pyqtSignal (str)
+    success = QtCore.pyqtSignal (str)
+
     def __init__ (self, searchfolder, songs):
+        super (WriteUnlockController, self).__init__ ()
         self.searchfolder = searchfolder
         self.songs = songs
 
@@ -21,8 +26,9 @@ class WriteUnlockController (object):
                     copy (writefile, backupfile)
                     print "Backup File: %s" % backupfile
                 except (IOError, OSError):
-                    print >> sys.stderr, "Permission denied for writing to %s." % backupfile
-                    print >> sys.stderr, "No backup file will be created."
+                    message = "Permission denied for writing to %s.\n No backup file will be created." % backupfile
+                    print >> sys.stderr, message
+
         else:
             home = os.path.expanduser ("~")
             writefile = os.path.join (home, "Unlocks.dat")
@@ -32,8 +38,8 @@ class WriteUnlockController (object):
                     copy (writefile, backupfile)
                     print "Backup File: %s" % backupfile
                 except (IOError, OSError):
-                    print >> sys.stderr, "Permission denied for writing to %s." % backupfile
-                    print >> sys.stderr, "No backup file will be created."
+                    message = "Permission denied for writing to %s.\n No backup file will be created." % backupfile
+                    print >> sys.stderr, message
 
         # Starts the writing of the Unlocks.dat file
         message = """// Test file for Miryo's new Unlock system.
@@ -79,9 +85,9 @@ class WriteUnlockController (object):
         try:
             unlockfile = open (writefile, 'w')
         except IOError:
-            print >> sys.stderr, "Permission denied for writing to %s. Exiting program." % writefile
-            #self.prompt_text.set_text ("Permission denied for writing to\n%s. Exiting program." % writefile)
-            #self.prompt_window.run ()
+            message =  "Permission denied for writing to %s. Exiting program." % writefile
+            print >> sys.stderr, message
+            self.error.emit (message)
             return
 
         unlockfile.write(message)
@@ -129,8 +135,6 @@ class WriteUnlockController (object):
         endtime = time ()
         print "Wrote Unlocks.dat:    %.3f" % (endtime - starttime)
         print "Unlock File: %s" % writefile
-        # Set text for final prompt window and show the window
-        #self.prompt_text.set_text ("File Unlocks.dat has been written to\n%s" % writefile)
-        #self.prompt_window.show ()
+        self.success.emit ("File Unlocks.dat has been written to\n%s" % writefile)
 
 

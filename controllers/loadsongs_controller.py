@@ -147,6 +147,7 @@ class LoadSongsController (QThread):
         self.wait ()
 
 
+# Keeping this for reference
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 

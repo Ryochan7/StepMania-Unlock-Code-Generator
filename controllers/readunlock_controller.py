@@ -21,13 +21,13 @@ class ReadUnlockController (object):
 
         if not os.path.isfile (readfile):
             print >> sys.stderr, "File \"%s\" does not exist or could not be read." % readfile
-            return False
+            return
 
         try:
             unlockfile = open (readfile, 'r')
         except (IOError, OSError):
             print >> sys.stderr, "File \"%s\" could not be read." % unlockfile
-            return False
+            return
 
         print "Read File: %s" % unlockfile.name
         readline = unlockfile.readline ()
@@ -80,5 +80,5 @@ class ReadUnlockController (object):
 
         endtime = time ()
         print "Read Unlocks.dat: %.3f" % (endtime - starttime)
-        return True
+        return
 

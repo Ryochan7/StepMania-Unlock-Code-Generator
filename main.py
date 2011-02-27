@@ -6,6 +6,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui.ui_mainwindow import Ui_MainWindow
 from ui.aboutdialog import AboutDialog
+from ui.errormessagedialog import ErrorMessageDialog
 from controllers.loadsongs_controller import LoadSongsController
 from controllers.writeunlock_controller import WriteUnlockController
 from controllers.readunlock_controller import ReadUnlockController
@@ -121,6 +122,17 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.loadsong_thread = None
         self.group_collection = []
 
+    @pyqtSlot (str)
+    def display_error_message (self, message):
+        error_dialog = ErrorMessageDialog (message)
+        error_dialog.exec_ ()
+
+    @pyqtSlot (str)
+    def display_exit_message (self, message):
+        error_dialog = ErrorMessageDialog (message)
+        error_dialog.setWindowTitle ("Exiting")
+        error_dialog.exec_ ()
+
     @pyqtSlot ()
     def on_cancelButton_clicked (self):
         # self.songOptionsFrame.hide ()
@@ -169,6 +181,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
         # Save final data
         controller = WriteUnlockController (searchfolder, self.all_item.group.songs)
+        controller.error.connect (self.display_exit_message)
+        controller.success.connect (self.display_exit_message)
         controller.run ()
 
         qApp.quit ()
@@ -179,9 +193,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
-
-        elif not current.group and not previous.group:
-            # Widget populated with empty QTreeWidgetItem
+        elif not current.group:
+            # Initial item with group set to None
             return
 
         if previous and not self.in_reset and not self.treeWidget_2.currentItem ():
