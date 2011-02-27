@@ -13,7 +13,7 @@ from controllers.readunlock_controller import ReadUnlockController
 class CustomTreeWidgetItem (QTreeWidgetItem):
     def __init__ (self, parent=None):
         super (CustomTreeWidgetItem, self).__init__ (parent)
-        self.group = None
+        self.group = self.song = None
 
     def __lt__ (self, other):
         string1 = unicode (self.text (0)).lower ()
@@ -48,6 +48,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.actionAbout.triggered.connect (self.aboutdialog.show)
         #self.actionQuit.triggered.connect (qApp.quit)
         self.loadsong_thread = None
+        self.in_reset = False
         self.group_collection = []
         self.songOptionsFrame.hide ()
         self.treeWidget.clear ()
@@ -127,20 +128,22 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
     @pyqtSlot ()
     def on_resetButton_clicked (self):
-        self.treeWidget_2.clearSelection ()
-        self.treeWidget.clearSelection ()
+        self.in_reset = True
         self.treeWidget_2.clear ()
+        self.treeWidget.clearSelection ()
+        self.treeWidget.reset ()
+
+        self.treeWidget.scrollToTop ()
+        topitem = self.treeWidget.topLevelItem (0)
+        self.treeWidget.setCurrentItem (topitem)
 
         iterator = QTreeWidgetItemIterator (self.treeWidget)
         while (iterator.value ()):
             iteritem = iterator.value ()
-            for song in iteritem.group.songs:
-                song.reset ()
-
+            iteritem.group.reset ()
             iterator += 1
-        self.treeWidget.scrollToTop ()
-        topitem = self.treeWidget.topLevelItem (0)
-        self.treeWidget.setCurrentItem (topitem)
+
+        self.in_reset = False
 
     @pyqtSlot ()
     def on_saveButton_clicked (self):
@@ -176,11 +179,12 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
-        elif not getattr (current, "group") and not getattr (previous, "group"):
+
+        elif not current.group and not previous.group:
             # Widget populated with empty QTreeWidgetItem
             return
 
-        if previous:
+        if previous and not self.in_reset and not self.treeWidget_2.currentItem ():
             group = previous.group
             #print group
             if self._group_update_needed (group):
@@ -189,9 +193,6 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
         self.treeWidget_2.clear ()
         self.treeWidget_2.scrollToTop ()
-        if not current:
-            # Recheck for current item. Used to follow update group logic
-            return
 
         # Regular group selected. Populate treeWidget with songs from group
         for song in current.group.songs:
@@ -244,7 +245,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
                 self._group_update (group)
                 group.change_songs ()
 
-        elif previous:
+        elif previous and not self.in_reset:
             # Widget cleared but selection made. Update song
             song = previous.song
             song.name = self.songOptionsWidget.lineEdit_2.text ()
@@ -258,13 +259,14 @@ class MainWindow (QMainWindow, Ui_MainWindow):
             # Widget cleared. Ignore
             return
 
-        song = current.song
-        self.songOptionsWidget.lineEdit_2.setText (song.name)
-        self.songOptionsWidget.arcadeSpinBox.setValue (song.arcade)
-        self.songOptionsWidget.clearSpinBox.setValue (song.clear)
-        self.songOptionsWidget.danceSpinBox.setValue (song.dance)
-        self.songOptionsWidget.rouletteSpinBox.setValue (song.roulette)
-        self.songOptionsWidget.spointsSpinBox.setValue (song.song)
+        if not self.in_reset:
+            song = current.song
+            self.songOptionsWidget.lineEdit_2.setText (song.name)
+            self.songOptionsWidget.arcadeSpinBox.setValue (song.arcade)
+            self.songOptionsWidget.clearSpinBox.setValue (song.clear)
+            self.songOptionsWidget.danceSpinBox.setValue (song.dance)
+            self.songOptionsWidget.rouletteSpinBox.setValue (song.roulette)
+            self.songOptionsWidget.spointsSpinBox.setValue (song.song)
 
 
 if __name__ == "__main__":

@@ -35,7 +35,8 @@ class SongGroup:
         self._defaults = [0, 0, 0, 0, 0]
 
     def reset (self):
-        self.values = self._defaults
+        # Create copy of defaults list
+        self.values = list (self._defaults)
         for song in self.songs:
             song.reset ()
 
