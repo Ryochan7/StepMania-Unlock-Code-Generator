@@ -193,7 +193,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not current and not previous:
             # Widget cleared. No previous selection. Ignore
             return
-        elif not current.group:
+        elif not current or not current.group:
             # Initial item with group set to None
             return
 
