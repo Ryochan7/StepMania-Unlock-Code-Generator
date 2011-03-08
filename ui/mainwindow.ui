@@ -165,9 +165,9 @@ p, li { white-space: pre-wrap; }
         </property>
        </item>
       </widget>
-      <widget class="QTreeWidget" name="treeWidget_2">
-       <property name="alternatingRowColors">
-        <bool>true</bool>
+      <widget class="QTreeView" name="treeView">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
        </property>
        <property name="sortingEnabled">
         <bool>true</bool>
@@ -175,29 +175,8 @@ p, li { white-space: pre-wrap; }
        <attribute name="headerShowSortIndicator" stdset="0">
         <bool>true</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string>Songs</string>
-        </property>
-       </column>
       </widget>
      </widget>
-    </item>
-    <item row="6" column="1">
-     <spacer name="verticalSpacer_7">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Preferred</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>7</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item row="5" column="0" colspan="2">
      <widget class="QFrame" name="songOptionsFrame">
@@ -239,6 +218,22 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
+    </item>
+    <item row="6" column="1">
+     <spacer name="verticalSpacer_7">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Preferred</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>7</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
@@ -294,7 +289,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>toolButton</tabstop>
   <tabstop>loadSongsButton</tabstop>
   <tabstop>treeWidget</tabstop>
-  <tabstop>treeWidget_2</tabstop>
  </tabstops>
  <resources/>
  <connections/>

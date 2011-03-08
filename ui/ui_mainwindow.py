@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'test.ui'
+# Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
-# Created: Tue Feb 22 02:50:42 2011
+# Created: Tue Mar  8 12:56:14 2011
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -64,25 +64,26 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setWeight(75)
         font.setBold(True)
-        self.treeWidget_2 = QtGui.QTreeWidget(self.splitter)
-        self.treeWidget_2.setAlternatingRowColors(True)
-        self.treeWidget_2.setObjectName("treeWidget_2")
-        self.treeWidget_2.header().setSortIndicatorShown(True)
+        self.treeView = QtGui.QTreeView(self.splitter)
+        self.treeView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.treeView.setSortingEnabled(True)
+        self.treeView.setObjectName("treeView")
+        self.treeView.header().setSortIndicatorShown(True)
         self.gridLayout.addWidget(self.splitter, 4, 0, 1, 2)
-        spacerItem4 = QtGui.QSpacerItem(20, 7, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
-        self.gridLayout.addItem(spacerItem4, 6, 1, 1, 1)
         self.songOptionsFrame = QtGui.QFrame(self.centralwidget)
         self.songOptionsFrame.setObjectName("songOptionsFrame")
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.songOptionsFrame)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem5 = QtGui.QSpacerItem(30, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem5)
+        spacerItem4 = QtGui.QSpacerItem(30, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem4)
         self.songOptionsWidget = SongOptions(self.songOptionsFrame)
         self.songOptionsWidget.setObjectName("songOptionsWidget")
         self.horizontalLayout_2.addWidget(self.songOptionsWidget)
-        spacerItem6 = QtGui.QSpacerItem(30, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem6)
+        spacerItem5 = QtGui.QSpacerItem(30, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem5)
         self.gridLayout.addWidget(self.songOptionsFrame, 5, 0, 1, 2)
+        spacerItem6 = QtGui.QSpacerItem(20, 7, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+        self.gridLayout.addItem(spacerItem6, 6, 1, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 660, 25))
@@ -109,7 +110,6 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.lineEdit, self.toolButton)
         MainWindow.setTabOrder(self.toolButton, self.loadSongsButton)
         MainWindow.setTabOrder(self.loadSongsButton, self.treeWidget)
-        MainWindow.setTabOrder(self.treeWidget, self.treeWidget_2)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "StepMania Unlock Code Generator", None, QtGui.QApplication.UnicodeUTF8))
@@ -126,8 +126,6 @@ class Ui_MainWindow(object):
         self.treeWidget.setSortingEnabled(False)
         self.treeWidget.topLevelItem(0).setText(0, QtGui.QApplication.translate("MainWindow", "All", None, QtGui.QApplication.UnicodeUTF8))
         self.treeWidget.setSortingEnabled(__sortingEnabled)
-        self.treeWidget_2.setSortingEnabled(True)
-        self.treeWidget_2.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "Songs", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionQuit.setText(QtGui.QApplication.translate("MainWindow", "Quit", None, QtGui.QApplication.UnicodeUTF8))
@@ -135,13 +133,3 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
 
 from songoptions import SongOptions
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
-

@@ -21,14 +21,14 @@ class CustomTreeWidgetItem (QTreeWidgetItem):
         string2 = unicode (other.text (0)).lower ()
         # Count self as greater. Will appear first in ascending order
         if string1 == string2:
-            return True
+            return False
 
         string1_length = len (string1)
         string2_length = len (string2)
 
         shorter_string = string2
-        if string1_length < string2_length:
-            shorter_string = string2
+        if string1_length <= string2_length:
+            shorter_string = string1
 
         for i, char in enumerate (shorter_string):
             if string1[i] != string2[i]:
@@ -36,7 +36,74 @@ class CustomTreeWidgetItem (QTreeWidgetItem):
 
         # Count smaller string as greater. Will appear first in
         # ascending order
-        return True
+        return False
+
+class UnlockItem (QStandardItem):
+    def __init__ (self, text=None):
+        super (self.__class__, self).__init__ (text)
+        self.group = self.song = None
+
+    def __lt__ (self, other):
+        #print "IN HERE"
+        string1 = unicode (self.text ()).lower ()
+        string2 = unicode (other.text ()).lower ()
+        # Count self as greater. Will appear first in ascending order
+        if string1 == string2:
+            return False
+
+        string1_length = len (string1)
+        string2_length = len (string2)
+
+        shorter_string = string2
+        if string1_length <= string2_length:
+            shorter_string = string1
+
+        for i, char in enumerate (shorter_string):
+            if string1[i] != string2[i]:
+                return string1[i] < string2[i]
+
+        # Count smaller string as greater. Will appear first in
+        # ascending order
+        return False
+
+class UnlockModel (QStandardItemModel):
+    GROUPITEMS = 1
+    SONGITEMS = 2
+
+    def __init__ (self, datalist=None, unlocktype=SONGITEMS, parent=None):
+        super (UnlockModel, self).__init__ (parent)
+        self.group = self.song = None
+        header_text = "Groups" if unlocktype == self.GROUPITEMS else "Songs"
+        self.setHorizontalHeaderLabels ([header_text])
+        datalist = datalist if datalist else list ()
+        for item in datalist:
+            newitem = UnlockItem (item.name)
+            if unlocktype == self.GROUPITEMS:
+                newitem.group = item
+            elif unlocktype == self.SONGITEMS:
+                newitem.song = item
+            self.appendRow (newitem)
+
+class CustomSortFilterProxyModel (QSortFilterProxyModel):
+    def __init__ (self, parent=None):
+        super (self.__class__, self).__init__ (parent)
+
+    def lessThan (self, left_index, right_index):
+        sourceLeft = self.sourceModel ().itemFromIndex (left_index)
+        sourceRight = self.sourceModel ().itemFromIndex (right_index)
+        return sourceLeft < sourceRight
+
+    def data (self, index, role):
+        if not index.isValid ():
+            return QVariant ()
+
+        if role == Qt.DisplayRole:
+            return super (self.__class__, self).data (index, role)
+        elif role == Qt.UserRole:
+            source_index = self.mapToSource (index)
+            return QVariant (source_index.model ().itemFromIndex (source_index))
+
+        return QVariant ()
 
 class MainWindow (QMainWindow, Ui_MainWindow):
     def __init__ (self, parent=None):
@@ -53,6 +120,14 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.group_collection = []
         self.songOptionsFrame.hide ()
         self.treeWidget.clear ()
+
+        self.unlock_model = UnlockModel ([], UnlockModel.SONGITEMS)
+        self.filter_unlock_model = CustomSortFilterProxyModel (self)
+        self.filter_unlock_model.setSourceModel (self.unlock_model)
+        self.treeView.setModel (self.filter_unlock_model)
+        self.treeView.selectionModel ().currentChanged.connect (self.on_treeView_currentItemChanged)
+        self.treeView.setRootIsDecorated (False)
+
         item = CustomTreeWidgetItem (["All"])
         itfont = QFont ()
         itfont.setBold (True)
@@ -61,7 +136,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.all_item = item
 
         self.treeWidget.sortItems (0, Qt.AscendingOrder)
-        self.treeWidget_2.sortItems (0, Qt.AscendingOrder)
+        self.treeView.sortByColumn (0, Qt.AscendingOrder)
 
     @pyqtSlot ()
     def on_toolButton_clicked (self):
@@ -82,7 +157,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
             return
 
         self.treeWidget.clear ()
-        self.treeWidget_2.clear ()
+        self.treeView.reset ()
+        self.treeView.setModel (QStandardItemModel ())
 
         self.songOptionsFrame.setEnabled (False)
         self.loadSongsButton.setEnabled (False)
@@ -141,7 +217,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     @pyqtSlot ()
     def on_resetButton_clicked (self):
         self.in_reset = True
-        self.treeWidget_2.clear ()
+        self.treeView.clearSelection ()
+        self.treeView.reset ()
         self.treeWidget.clearSelection ()
         self.treeWidget.reset ()
 
@@ -162,7 +239,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         searchfolder = str(self.lineEdit.text ())
 
         groupitem = self.treeWidget.currentItem ()
-        songitem = self.treeWidget_2.currentItem ()
+        song_index = self.treeView.currentIndex ()
+        songitem = song_index.data (Qt.UserRole).toPyObject ()
         # Check for selected song first
         if songitem:
             song = songitem.song
@@ -197,21 +275,21 @@ class MainWindow (QMainWindow, Ui_MainWindow):
             # Initial item with group set to None
             return
 
-        if previous and not self.in_reset and not self.treeWidget_2.currentItem ():
+        if previous and not self.in_reset and not self.treeView.currentIndex ():
             group = previous.group
             #print group
             if self._group_update_needed (group):
                 self._group_update (group)
                 group.change_songs ()
 
-        self.treeWidget_2.clear ()
-        self.treeWidget_2.scrollToTop ()
+        self.treeView.reset ()
+        self.treeView.scrollToTop ()
 
-        # Regular group selected. Populate treeWidget with songs from group
-        for song in current.group.songs:
-            item = CustomTreeWidgetItem ([song.name])
-            item.song = song
-            self.treeWidget_2.addTopLevelItem (item)
+        self.unlock_model = UnlockModel (current.group.songs, UnlockModel.SONGITEMS, self)
+        self.filter_unlock_model = CustomSortFilterProxyModel (self)
+        self.filter_unlock_model.setSourceModel (self.unlock_model)
+        self.treeView.setModel (self.filter_unlock_model)
+        self.treeView.selectionModel ().currentChanged.connect (self.on_treeView_currentItemChanged)
 
         self.songOptionsWidget.lineEdit_2.setText (current.group.name)
         self.songOptionsWidget.arcadeSpinBox.setValue (current.group.values[0])
@@ -245,12 +323,12 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         return
 
     # Handle cursor change events
-    @pyqtSlot ("QTreeWidgetItem*", "QTreeWidgetItem*")
-    def on_treeWidget_2_currentItemChanged (self, current, previous):
-        if not current and not previous:
+    @pyqtSlot ("QModelIndex", "QModelIndex")
+    def on_treeView_currentItemChanged (self, current, previous):
+        if not current.isValid () and not previous.isValid ():
             # Widget cleared. No previous selection. Ignore
             return
-        elif current and not previous:
+        elif current.isValid () and not previous.isValid ():
             # Update group information and songs if necessary
             group = self.treeWidget.currentItem ().group
             #print group
@@ -258,9 +336,10 @@ class MainWindow (QMainWindow, Ui_MainWindow):
                 self._group_update (group)
                 group.change_songs ()
 
-        elif previous and not self.in_reset:
+        elif previous.isValid () and not self.in_reset:
             # Widget cleared but selection made. Update song
-            song = previous.song
+            song = previous.data (Qt.UserRole).toPyObject ().song
+            #song = previous.song
             song.name = self.songOptionsWidget.lineEdit_2.text ()
             song.arcade = self.songOptionsWidget.arcadeSpinBox.value ()
             song.clear = self.songOptionsWidget.clearSpinBox.value ()
@@ -268,19 +347,19 @@ class MainWindow (QMainWindow, Ui_MainWindow):
             song.roulette = self.songOptionsWidget.rouletteSpinBox.value ()
             song.song = self.songOptionsWidget.spointsSpinBox.value ()
 
-        if not current:
+        if not current.isValid ():
             # Widget cleared. Ignore
             return
 
         if not self.in_reset:
-            song = current.song
+            song = current.data (Qt.UserRole).toPyObject ().song
+            #song = current.song
             self.songOptionsWidget.lineEdit_2.setText (song.name)
             self.songOptionsWidget.arcadeSpinBox.setValue (song.arcade)
             self.songOptionsWidget.clearSpinBox.setValue (song.clear)
             self.songOptionsWidget.danceSpinBox.setValue (song.dance)
             self.songOptionsWidget.rouletteSpinBox.setValue (song.roulette)
             self.songOptionsWidget.spointsSpinBox.setValue (song.song)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
