@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 from time import time
 from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QApplication
@@ -7,21 +8,41 @@ from stepmaniaunlock.extraclasses import Song, SongGroup
 
 class LoadSongsController (QThread):
     groupload_notice = pyqtSignal (str)
+    smfileread_complete = pyqtSignal (int)
 
     def __init__ (self, searchfolder, group_collect, parent=None):
         super (LoadSongsController, self).__init__ (parent)
         self.group_collection = group_collect
         self.group_collection.append (SongGroup ("All"))
         self.searchfolder = searchfolder
+        self.num_files = 0
+        self.smread_complete = 0
         self.exiting = False
 
     def run (self):
         starttime = time ()
-        self._filewalk ()
+        file_collection = self._filewalk ()
+        self._read_files (file_collection)
         endtime = time ()
         print "LoadSongsController: %.3f" % (endtime - starttime)
 
+    def _read_files (self, file_collection):
+        for group_name, song_files in file_collection:
+            self.groupload_notice.emit ("Loading Group: %s" % group_name)
+            entries = self._smfile_read (song_files)
+            if len (entries) == 0:
+                continue
+
+            entries.sort (key=lambda x: x.name.lower ())
+            newgroup = SongGroup (group_name, entries)
+            self.group_collection.append (newgroup)
+            self.group_collection[0].songs.extend (newgroup.songs)
+
+        self.groupload_notice.emit ("")
+        print "Files read: %d" % len (self.group_collection[0].songs)
+
     def _filewalk (self):
+        file_collection = []
         searchfolder = os.path.join (self.searchfolder, "Songs")
         if not os.path.isdir (searchfolder):
             return
@@ -49,20 +70,15 @@ class LoadSongsController (QThread):
                                 #print "Dwi: %s" % song_file
                                 break
 
-                if len (songpaths) == 0:
+                num_songs = len (songpaths)
+                if num_songs == 0:
                     continue
+                else:
+                    self.num_files += len (songpaths)
 
-                self.groupload_notice.emit ("Loading Group: %s" % folders)
-                entries = self._smfile_read (songpaths)
-                if len (entries) == 0:
-                    continue
-                entries.sort (key=lambda x: x.name.lower ())
-                newgroup = SongGroup (folders, entries)
-                self.group_collection.append (newgroup)
-                self.group_collection[0].songs.extend (newgroup.songs)
+                file_collection.append ([folders, songpaths])
 
-        self.groupload_notice.emit ("")
-        print "Files read: %d" % len (self.group_collection[0].songs)
+        return file_collection
 
     # Reads in the .sm/.dwi files within a group folder, makes the
     # required Song objects, and returns the list of Song objects
@@ -74,6 +90,10 @@ class LoadSongsController (QThread):
             # under Windows
             if not os.path.exists (filepath):
                 print >> sys.stderr, "%s could not be read. Skipping." % filepath
+                self.smread_complete += 1
+                progress = (self.smread_complete / float (self.num_files)) * 100
+                progress = int (math.floor (progress))
+                self.smfileread_complete.emit (progress)
                 continue
 
             temp_filepath = filepath.lower ()
@@ -90,7 +110,12 @@ class LoadSongsController (QThread):
                 smfile = open (filepath, 'r')
             except IOError:
                 print >> sys.stderr, "%s could not be read. Skipping." % filepath
+                self.smread_complete += 1
+                progress = (self.smread_complete / float (self.num_files)) * 100
+                progress = int (math.floor (progress))
+                self.smfileread_complete.emit (progress)
                 continue
+
             readline = smfile.readline ()
             while readline:
                 if filetype == ".dwi" and title:
@@ -139,6 +164,11 @@ class LoadSongsController (QThread):
             else:
                 temp_song = Song ("%s %s" % (title, subtitle), "%s %s" % (title_trans, subtitle_trans))
             entries.append (temp_song)
+
+            self.smread_complete += 1
+            progress = (self.smread_complete / float (self.num_files)) * 100
+            progress = int (math.floor (progress))
+            self.smfileread_complete.emit (progress)
         return entries
 
 

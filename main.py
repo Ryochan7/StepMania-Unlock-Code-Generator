@@ -106,13 +106,16 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     def __init__ (self, parent=None):
         super (MainWindow, self).__init__ (parent)
         self.setupUi (self)
+        self.progressbar = QProgressBar (self)
+        self.progressbar.setRange (0, 100)
+        self.progressbar.setMaximumSize (QSize (200, 20))
+        self.statusbar.addPermanentWidget (self.progressbar)
         self.aboutdialog = AboutDialog ()
         # Leave old example of signal handling
         self.connect (self.actionQuit, SIGNAL ("triggered ()"),
             qApp, SLOT ("quit ()"))
         self.actionAbout.triggered.connect (self.aboutdialog.show)
         #self.actionQuit.triggered.connect (qApp.quit)
-        self.loadsong_thread = None
         self.in_reset = False
         self.group_collection = []
         self.songOptionsFrame.hide ()
@@ -162,14 +165,16 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.loadSongsButton.setEnabled (False)
         self.toolButton.setEnabled (False)
         self.filterFrame.setEnabled (False)
+        self.progressbar.setValue (0)
+        self.progressbar.show ()
 
         self.group_collection = []
-        controller = LoadSongsController (searchfolder, self.group_collection)
+        controller = LoadSongsController (searchfolder, self.group_collection, self)
         controller.groupload_notice.connect (self.statusbar.showMessage)
         controller.finished.connect (self.songOptionsFrame.show)
         controller.finished.connect (self.populateTreeWidgets)
+        controller.smfileread_complete.connect (self.progressbar.setValue)
         controller.start ()
-        self.loadsong_thread = controller
 
     @pyqtSlot ()
     def populateTreeWidgets (self):
@@ -195,8 +200,8 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.toolButton.setEnabled (True)
         self.filterFrame.setEnabled (True)
         self.filterFrame.show ()
+        self.progressbar.hide ()
 
-        self.loadsong_thread = None
         self.group_collection = []
 
     @pyqtSlot (str)
@@ -293,7 +298,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         # Reset made new selection model. Connect slot again
         self.treeView.selectionModel ().currentChanged.connect (self.on_treeView_currentItemChanged)
 
-        self.songOptionsWidget.itemLabel.setText ("Group Name:")
+        self.songOptionsWidget.itemLabel.setText (self.tr ("Group Name:"))
         self.songOptionsWidget.lineEdit_2.setText (current.group.name)
         self.songOptionsWidget.arcadeSpinBox.setValue (current.group.values[0])
         self.songOptionsWidget.clearSpinBox.setValue (current.group.values[1])
@@ -364,7 +369,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not self.in_reset:
             song = current.data (Qt.UserRole).toPyObject ().song
             #song = current.song
-            self.songOptionsWidget.itemLabel.setText ("Song Name:")
+            self.songOptionsWidget.itemLabel.setText (self.tr ("Song Name:"))
             self.songOptionsWidget.lineEdit_2.setText (song.name)
             self.songOptionsWidget.arcadeSpinBox.setValue (song.arcade)
             self.songOptionsWidget.clearSpinBox.setValue (song.clear)
@@ -374,6 +379,10 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    locale = QLocale.system ().name ()
+    translator = QTranslator ()
+    if translator.load ("stepmaniaunlock_%s" % locale, "translations"):
+        app.installTranslator (translator)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
