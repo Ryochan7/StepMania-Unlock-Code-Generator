@@ -4,12 +4,12 @@ import os
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.ui_mainwindow import Ui_MainWindow
-from ui.aboutdialog import AboutDialog
-from ui.errormessagedialog import ErrorMessageDialog
-from controllers.loadsongs_controller import LoadSongsController
-from controllers.writeunlock_controller import WriteUnlockController
-from controllers.readunlock_controller import ReadUnlockController
+from stepmaniaunlock.ui.ui_mainwindow import Ui_MainWindow
+from stepmaniaunlock.ui.aboutdialog import AboutDialog
+from stepmaniaunlock.ui.errormessagedialog import ErrorMessageDialog
+from stepmaniaunlock.controllers.loadsongs_controller import LoadSongsController
+from stepmaniaunlock.controllers.writeunlock_controller import WriteUnlockController
+from stepmaniaunlock.controllers.readunlock_controller import ReadUnlockController
 
 class CustomTreeWidgetItem (QTreeWidgetItem):
     def __init__ (self, parent=None):
@@ -161,6 +161,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.songOptionsFrame.setEnabled (False)
         self.loadSongsButton.setEnabled (False)
         self.toolButton.setEnabled (False)
+        self.filterFrame.setEnabled (False)
 
         self.group_collection = []
         controller = LoadSongsController (searchfolder, self.group_collection)
@@ -192,6 +193,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.songOptionsFrame.setEnabled (True)
         self.loadSongsButton.setEnabled (True)
         self.toolButton.setEnabled (True)
+        self.filterFrame.setEnabled (True)
         self.filterFrame.show ()
 
         self.loadsong_thread = None

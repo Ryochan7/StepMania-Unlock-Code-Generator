@@ -3,7 +3,7 @@ import sys
 from time import time
 from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QApplication
-from extraclasses import Song, SongGroup
+from stepmaniaunlock.extraclasses import Song, SongGroup
 
 class LoadSongsController (QThread):
     groupload_notice = pyqtSignal (str)
@@ -145,24 +145,4 @@ class LoadSongsController (QThread):
     def __del__ (self):
         self.exiting = True
         self.wait ()
-
-
-# Keeping this for reference
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    group_collection = []
-    controller = LoadSongsController (os.getcwd (), group_collection)
-    controller.finished.connect (app.quit)
-
-    controller.start ()
-    controller.wait ()
-    print group_collection
-    for group in group_collection:
-        print group
-        print
-        for song in group.songs:
-            print song
-
-    app.exec_ ()
 
