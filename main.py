@@ -87,11 +87,8 @@ class UnlockModel (QStandardItemModel):
 class CustomSortFilterProxyModel (QSortFilterProxyModel):
     def __init__ (self, parent=None):
         super (self.__class__, self).__init__ (parent)
-
-    def lessThan (self, left_index, right_index):
-        sourceLeft = self.sourceModel ().itemFromIndex (left_index)
-        sourceRight = self.sourceModel ().itemFromIndex (right_index)
-        return sourceLeft < sourceRight
+        self.setSortCaseSensitivity (Qt.CaseInsensitive)
+        self.setFilterCaseSensitivity (Qt.CaseInsensitive)
 
     def data (self, index, role):
         if not index.isValid ():
@@ -119,6 +116,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.in_reset = False
         self.group_collection = []
         self.songOptionsFrame.hide ()
+        self.filterFrame.hide ()
         self.treeWidget.clear ()
 
         self.unlock_model = UnlockModel ([], UnlockModel.SONGITEMS)
@@ -126,7 +124,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.filter_unlock_model.setSourceModel (self.unlock_model)
         self.treeView.setModel (self.filter_unlock_model)
         self.treeView.selectionModel ().currentChanged.connect (self.on_treeView_currentItemChanged)
-        self.treeView.setRootIsDecorated (False)
+        self.lineEdit_2.textChanged.connect (self.treeView_filter)
 
         item = CustomTreeWidgetItem (["All"])
         itfont = QFont ()
@@ -194,6 +192,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.songOptionsFrame.setEnabled (True)
         self.loadSongsButton.setEnabled (True)
         self.toolButton.setEnabled (True)
+        self.filterFrame.show ()
 
         self.loadsong_thread = None
         self.group_collection = []
@@ -289,14 +288,23 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         self.filter_unlock_model = CustomSortFilterProxyModel (self)
         self.filter_unlock_model.setSourceModel (self.unlock_model)
         self.treeView.setModel (self.filter_unlock_model)
+        # Reset made new selection model. Connect slot again
         self.treeView.selectionModel ().currentChanged.connect (self.on_treeView_currentItemChanged)
 
+        self.songOptionsWidget.itemLabel.setText ("Group Name:")
         self.songOptionsWidget.lineEdit_2.setText (current.group.name)
         self.songOptionsWidget.arcadeSpinBox.setValue (current.group.values[0])
         self.songOptionsWidget.clearSpinBox.setValue (current.group.values[1])
         self.songOptionsWidget.danceSpinBox.setValue (current.group.values[2])
         self.songOptionsWidget.rouletteSpinBox.setValue (current.group.values[3])
         self.songOptionsWidget.spointsSpinBox.setValue (current.group.values[4])
+
+    @pyqtSlot ("QString")
+    def treeView_filter (self, pattern):
+        self.filter_unlock_model.setFilterRegExp (pattern)
+        self.treeView.sortByColumn (0)
+        topindex = self.treeView.model ().index (0, 0, QModelIndex ())
+        self.treeView.setCurrentIndex (topindex)
 
     def _group_update_needed (self, group):
         update = False
@@ -354,6 +362,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
         if not self.in_reset:
             song = current.data (Qt.UserRole).toPyObject ().song
             #song = current.song
+            self.songOptionsWidget.itemLabel.setText ("Song Name:")
             self.songOptionsWidget.lineEdit_2.setText (song.name)
             self.songOptionsWidget.arcadeSpinBox.setValue (song.arcade)
             self.songOptionsWidget.clearSpinBox.setValue (song.clear)

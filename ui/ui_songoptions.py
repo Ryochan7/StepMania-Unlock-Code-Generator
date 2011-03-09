@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'songoptions.ui'
+# Form implementation generated from reading ui file 'ui/songoptions.ui'
 #
-# Created: Tue Feb 22 02:50:45 2011
+# Created: Tue Mar  8 21:17:48 2011
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -142,10 +142,10 @@ class Ui_SongOptions(object):
         self.lineEdit_2.setReadOnly(True)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.gridLayout.addWidget(self.lineEdit_2, 0, 2, 1, 2)
-        self.label_3 = QtGui.QLabel(SongOptions)
-        self.label_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout.addWidget(self.label_3, 0, 0, 1, 1)
+        self.itemLabel = QtGui.QLabel(SongOptions)
+        self.itemLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.itemLabel.setObjectName("itemLabel")
+        self.gridLayout.addWidget(self.itemLabel, 0, 0, 1, 1)
         self.horizontalLayout.addLayout(self.gridLayout)
 
         self.retranslateUi(SongOptions)
@@ -161,15 +161,5 @@ class Ui_SongOptions(object):
         self.label_6.setText(QtGui.QApplication.translate("SongOptions", "Dance Points:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("SongOptions", "Roulette:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("SongOptions", "Song Points:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("SongOptions", "Song Name:", None, QtGui.QApplication.UnicodeUTF8))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    SongOptions = QtGui.QWidget()
-    ui = Ui_SongOptions()
-    ui.setupUi(SongOptions)
-    SongOptions.show()
-    sys.exit(app.exec_())
+        self.itemLabel.setText(QtGui.QApplication.translate("SongOptions", "Song Name:", None, QtGui.QApplication.UnicodeUTF8))
 
