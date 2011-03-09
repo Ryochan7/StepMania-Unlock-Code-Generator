@@ -381,7 +381,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     locale = QLocale.system ().name ()
     translator = QTranslator ()
-    if translator.load ("stepmaniaunlock_%s" % locale, "translations"):
+    # Import package to obtain package directory
+    package_dir = os.path.dirname (__import__ ("stepmaniaunlock").__file__)
+    # Translation files located in package
+    if translator.load ("stepmaniaunlock_%s" % locale, os.path.join (package_dir, "translations")):
         app.installTranslator (translator)
     window = MainWindow()
     window.show()
