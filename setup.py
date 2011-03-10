@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-import glob
+import sys
 import subprocess
 
-# Compile translation files
-new_process = subprocess.Popen (["lrelease", "project.pro"])
-new_process.wait ()
+# Compile translation files if not making source build
+if not "sdist" in sys.argv:
+    new_process = subprocess.Popen (["lrelease", "project.pro"])
+    new_process.wait ()
 
 setup ( name="sucg",
         version="0.7",

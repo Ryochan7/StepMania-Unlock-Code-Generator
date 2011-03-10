@@ -1,2 +1,3 @@
 include stepmaniaunlock/translations/*.ts
+include stepmaniaunlock/test/*
 
