@@ -19,7 +19,7 @@ setup ( name="sucg",
         packages=["stepmaniaunlock", "stepmaniaunlock.controllers",
                   "stepmaniaunlock.ui"],
         package_data={"stepmaniaunlock": ["translations/*.qm"]},
-        scripts=["sucg"],
+        scripts=["sucg.py"],
         )
 
 
