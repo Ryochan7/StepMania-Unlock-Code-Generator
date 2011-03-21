@@ -3,4 +3,5 @@ MANIFEST
 .ropeproject/
 build/
 dist/
+nbproject/
 
