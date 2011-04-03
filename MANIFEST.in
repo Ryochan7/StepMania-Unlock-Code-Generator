@@ -1,3 +1,5 @@
 include stepmaniaunlock/translations/*.ts
-include stepmaniaunlock/test/*
+include stepmaniaunlock/test/*.py
+include stepmaniaunlock/ui/*.ui
+include runtests.py
 
