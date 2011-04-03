@@ -142,7 +142,7 @@ class MainWindow (QMainWindow, Ui_MainWindow):
     @pyqtSlot ()
     def on_toolButton_clicked (self):
         fileName = QFileDialog.getExistingDirectory (self,
-            "Choose StepMania Directory", os.path.dirname (__file__))
+            "Choose StepMania Directory", os.path.dirname (sys.argv[0]))
 
         if fileName:
             self.lineEdit.setText (fileName)
@@ -189,12 +189,12 @@ class MainWindow (QMainWindow, Ui_MainWindow):
 
             item.group = group
             self.treeWidget.addTopLevelItem (item)
-            self.treeWidget.setCurrentItem (self.all_item)
 
         searchfolder = str(self.lineEdit.text ())
         controller = ReadUnlockController (searchfolder, songs)
         controller.run ()
 
+        self.treeWidget.setCurrentItem (self.all_item)
         self.songOptionsFrame.setEnabled (True)
         self.loadSongsButton.setEnabled (True)
         self.toolButton.setEnabled (True)
